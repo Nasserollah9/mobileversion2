@@ -24,8 +24,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 
+
+
+
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+
+
+
 public class MarocStoryActivity extends AppCompatActivity {
 
+    private FirebaseAuth mAuth;
     private TextView tvStory, tvUserSpeech;
     private Button btnNext;
     private RadioGroup radioGroup;
@@ -44,6 +55,17 @@ public class MarocStoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maroc_story);
 
+        // Initialize FirebaseAuth
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // Set userName to the Firebase user's display name or email
+            userName = currentUser.getDisplayName();
+            if (userName == null || userName.isEmpty()) {
+                userName = currentUser.getEmail();
+            }
+        }
+
         // Initialize UI elements
         tvStory = findViewById(R.id.tvStory);
         tvUserSpeech = findViewById(R.id.tvUserSpeech);
@@ -54,18 +76,15 @@ public class MarocStoryActivity extends AppCompatActivity {
 
         // Get the uploaded image name safely from the intent
         uploadedImageName = getIntent().getStringExtra("uploadedImageName");
-       // Log the image path
 
         String imagePath = getFilesDir().getAbsolutePath() + File.separator + uploadedImageName;
         Log.d("ImagePath", "Uploaded Image Path: " + imagePath);
-
 
         // Debugging log to check the image name
         if (uploadedImageName == null || uploadedImageName.isEmpty()) {
             tvStory.setText("No image found.");
         } else {
             fullImageUrl = "https://nzfiiozondmzvdqxdrld.supabase.co/storage/v1/object/public/images/photos/" + uploadedImageName;
-            // Log the URL to check
             Log.d("UploadedImageURL", fullImageUrl);
         }
 

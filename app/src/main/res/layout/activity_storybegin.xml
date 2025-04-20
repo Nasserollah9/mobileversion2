@@ -21,12 +21,12 @@
         android:backgroundTint="@color/button_bronze"
         android:elevation="6dp"
         android:padding="14dp"
-        android:layout_marginTop="24dp"
         android:fontFamily="@font/merriweather"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:enabled="false" /> <!-- Initially disabled until image upload is successful -->
+        android:enabled="false"
+        android:layout_marginTop="24dp"/>
 
     <!-- Use <fragment> for Google Maps -->
     <fragment
@@ -40,7 +40,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.4"
         app:layout_constraintWidth_percent="1"
-        tools:ignore="MissingFragment" />
+        tools:ignore="FragmentTagUsage" />
 
     <!-- Location Text -->
     <TextView
@@ -50,11 +50,11 @@
         android:text="Lieu : Inconnu"
         android:textSize="18sp"
         android:textColor="@color/old_paper"
-        android:layout_marginBottom="24dp"
         android:fontFamily="@font/merriweather"
         app:layout_constraintBottom_toTopOf="@id/btnUploadImage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="24dp"/>
 
     <!-- Button to Upload Image -->
     <Button
@@ -67,13 +67,11 @@
         android:elevation="6dp"
         android:padding="14dp"
         android:fontFamily="@font/merriweather"
-        app:layout_constraintTop_toBottomOf="@id/tvLocation"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp"/>
 
     <!-- Text to show image upload status -->
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
