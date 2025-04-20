@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/registerScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="24dp"
+    tools:context=".register">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="48dp"
+        android:layout_marginBottom="48dp"
+        android:background="@android:color/white"
+        android:elevation="6dp"
+        android:layout_marginHorizontal="12dp"
+        android:clipToPadding="false">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Créer un compte"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_700"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- Email input -->
+        <EditText
+            android:id="@+id/etMail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Adresse Email"
+            android:inputType="textEmailAddress"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="#888888"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/purple_700"
+            android:fontFamily="sans-serif" />
+
+        <!-- Password input -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mot de passe"
+            android:inputType="textPassword"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="#888888"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="@color/purple_700"
+            android:fontFamily="sans-serif" />
+
+        <!-- Confirm password input -->
+        <EditText
+            android:id="@+id/etPassword1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirmer le mot de passe"
+            android:inputType="textPassword"
+            android:padding="14dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="#888888"
+            android:layout_marginBottom="24dp"
+            android:backgroundTint="@color/purple_700"
+            android:fontFamily="sans-serif" />
+
+        <!-- Register button -->
+        <Button
+            android:id="@+id/bRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="S'inscrire"
+            android:textStyle="bold"
+            android:backgroundTint="@color/purple_700"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif" />
+
+    </LinearLayout>
+</ScrollView>

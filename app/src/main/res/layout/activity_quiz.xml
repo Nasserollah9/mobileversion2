@@ -1,0 +1,96 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Quiz Question -->
+    <TextView
+        android:id="@+id/tvQuiz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Question"
+        android:textSize="18sp"
+        android:textColor="@color/old_paper"
+        android:fontFamily="@font/merriweather"
+        android:textAlignment="center"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Options -->
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvQuiz"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true">
+
+        <RadioButton
+            android:id="@+id/radioMother"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mother"
+            android:textColor="@color/old_paper"
+            android:fontFamily="@font/merriweather"/>
+
+        <RadioButton
+            android:id="@+id/radioWife"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wife"
+            android:textColor="@color/old_paper"
+            android:fontFamily="@font/merriweather"/>
+
+        <RadioButton
+            android:id="@+id/radioNotSay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I prefer not to say"
+            android:textColor="@color/old_paper"
+            android:fontFamily="@font/merriweather"/>
+    </RadioGroup>
+
+    <!-- Next button -->
+    <Button
+        android:id="@+id/btnNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:textColor="@color/old_paper"
+        android:textStyle="bold"
+        android:fontFamily="@font/merriweather"
+        android:backgroundTint="@color/button_bronze"
+        android:layout_below="@id/radioGroup"
+        android:layout_marginTop="24dp"
+        android:layout_centerHorizontal="true"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"/>
+
+    <!-- ProgressBar for Blood Score -->
+    <ProgressBar
+        android:id="@+id/progressBlood"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:layout_below="@id/btnNext"
+        android:layout_marginTop="8dp"
+        android:progress="500"
+        android:max="500"
+        android:progressDrawable="@drawable/progress_blood_drawable" />
+
+    <!-- Blood Score text -->
+    <TextView
+        android:id="@+id/tvBloodScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Blood Score: 500"
+        android:textSize="18sp"
+        android:textColor="@color/old_paper"
+        android:fontFamily="@font/merriweather"
+        android:layout_below="@id/progressBlood"
+        android:layout_marginTop="8dp"
+        android:layout_centerHorizontal="true"/>
+</RelativeLayout>

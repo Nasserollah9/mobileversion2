@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/darkBackground"
+    android:padding="16dp"
+    android:fillViewport="true"
+    tools:context=".login">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="@drawable/background"
+        android:elevation="8dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp"
+        android:orientation="vertical">
+
+        <!-- Logo -->
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:contentDescription="logo"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/logo" />
+
+        <!-- Title TextView -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connexion"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/ivory"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:fontFamily="serif" />
+
+        <!-- Email input field -->
+        <EditText
+            android:id="@+id/etMail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/edit_text_bg"
+            android:hint="Adresse Email"
+            android:inputType="textEmailAddress"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/ivory"
+            android:padding="12dp"
+            android:fontFamily="serif" />
+
+        <!-- Password input field -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mot de passe"
+            android:inputType="textPassword"
+            android:padding="12dp"
+            android:background="@drawable/edit_text_bg"
+            android:textColor="@android:color/black"
+            android:textColorHint="@color/ivory"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="serif" />
+
+        <!-- Login button -->
+        <Button
+            android:id="@+id/bLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Se connecter"
+            android:textStyle="bold"
+            android:backgroundTint="@color/deepPurple"
+            android:textColor="@android:color/white"
+            android:padding="14dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="serif" />
+
+        <!-- Registration link -->
+        <TextView
+            android:id="@+id/tvRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pas encore inscrit ? Créez un compte"
+            android:textColor="@color/deepPurple"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:fontFamily="serif" />
+
+    </LinearLayout>
+
+</ScrollView>

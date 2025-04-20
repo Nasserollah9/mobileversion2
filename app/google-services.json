@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "875073568829",
+    "project_id": "storyquizz-e55b1",
+    "storage_bucket": "storyquizz-e55b1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875073568829:android:d99ab1d85d67d946d82a54",
+        "android_client_info": {
+          "package_name": "com.example.quiznasserollahapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9aFv4VnK51grbXJZz-xRQoKRh0Ri1QvY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

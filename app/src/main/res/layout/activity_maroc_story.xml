@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_background"
+    android:padding="16dp">
+
+    <!-- Large mysterious image at the top -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/storyapp" />
+
+    <!-- Story text displayed below the image -->
+    <TextView
+        android:id="@+id/tvStory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imageView"
+        android:layout_marginTop="24dp"
+        android:text="A strange mist surrounds the forest tonight..."
+        android:textSize="18sp"
+        android:textColor="@color/old_paper"
+        android:fontFamily="@font/merriweather"
+        android:lineSpacingExtra="6dp"
+        android:textAlignment="center"
+        android:padding="16dp" />
+
+    <!-- Radio group for name selection -->
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvStory"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:visibility="visible">
+
+        <RadioButton
+            android:id="@+id/radioName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Use my name"
+            android:textColor="@color/old_paper"
+            android:fontFamily="@font/merriweather"
+            android:buttonTint="@color/old_paper"
+            android:layout_marginBottom="16dp" />
+
+        <RadioButton
+            android:id="@+id/radioAnonymous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I prefer to remain anonymous"
+            android:textColor="@color/old_paper"
+            android:fontFamily="@font/merriweather"
+            android:buttonTint="@color/old_paper" />
+    </RadioGroup>
+
+    <!-- User speech TextView -->
+    <TextView
+        android:id="@+id/tvUserSpeech"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/radioGroup"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:textSize="16sp"
+        android:textColor="@color/old_paper"
+        android:fontFamily="@font/merriweather"
+        android:padding="8dp" />
+
+    <!-- Next button at the bottom -->
+    <Button
+        android:id="@+id/btnNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:textColor="@color/old_paper"
+        android:textStyle="bold"
+        android:fontFamily="@font/merriweather"
+        android:backgroundTint="@color/button_bronze"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="24dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp" />
+
+</RelativeLayout>

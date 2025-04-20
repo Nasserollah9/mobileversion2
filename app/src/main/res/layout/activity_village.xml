@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Image at the top showing the village -->
+        <ImageView
+            android:id="@+id/ivVillageImage"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/village"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Story text explaining the quiz and blood score -->
+        <TextView
+            android:id="@+id/tvStory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome to our village! We are sick people, and we need your blood, but don't worry, we won't take it from you because we're not bad.\n\nWe will play a game like a quiz. Let me explain it to you first.\n\nYou have a blood score of 500. We will give you 7 questions. Each question has 3 options, 2 correct and 1 false.\n\nIf you choose the false one, your blood points will decrease by 50. In the end, if you have more than 300 blood points, you will still be alive!\n\nAre you ready?"
+            android:textSize="18sp"
+            android:textColor="@color/old_paper"
+            android:fontFamily="@font/merriweather"
+            android:textAlignment="center"
+            android:lineSpacingExtra="6dp"
+            android:paddingHorizontal="8dp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- RadioGroup for options -->
+        <RadioGroup
+            android:id="@+id/radioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <RadioButton
+                android:id="@+id/radioAccept"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yes, I accept" />
+
+            <RadioButton
+                android:id="@+id/radioGo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No, I will go. I don't have time for this" />
+        </RadioGroup>
+
+        <!-- Button -->
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:textColor="@color/old_paper"
+            android:textStyle="bold"
+            android:fontFamily="@font/merriweather"
+            android:backgroundTint="@color/button_bronze"
+            android:layout_marginTop="24dp"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp" />
+    </LinearLayout>
+</ScrollView>
