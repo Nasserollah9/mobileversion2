@@ -56,7 +56,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
     private boolean isImageUploaded = false;
     private File currentPhotoFile;
 
-    private String uploadedImageName = ""; // ✅ Add this to store uploaded file name
+    private String uploadedImageName = ""; // Store uploaded file name
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,9 +125,10 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
     }
 
     private void openImagePicker() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE}, IMAGE_CAPTURE_CODE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    IMAGE_CAPTURE_CODE);
         } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             if (intent.resolveActivity(getPackageManager()) != null) {
@@ -140,8 +141,11 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
                 }
 
                 if (currentPhotoFile != null) {
-                    Uri photoUri = FileProvider.getUriForFile(this, "com.example.quiznasserollahapp.fileprovider", currentPhotoFile);
+                    Uri photoUri = FileProvider.getUriForFile(this,
+                            "com.example.quiznasserollahapp.fileprovider",
+                            currentPhotoFile);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                    intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     startActivityForResult(intent, IMAGE_CAPTURE_CODE);
                 }
             } else {
@@ -149,6 +153,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
             }
         }
     }
+
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -177,7 +182,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
 
         String supabaseUrl = "https://nzfiiozondmzvdqxdrld.supabase.co";
         String bucketName = "images";
-        String apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56Zmlpb3pvbmRtenZkcXhkcmxkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTE0MjIxNywiZXhwIjoyMDYwNzE4MjE3fQ.2d0GZGpYADZ985xNUpxWh3i7pHHun1WxkXn4QhX4g9A";
+        String apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56Zmlpb3pvbmRtenZkcXhkcmxkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTE0MjIxNywiZXhwIjoyMDYwNzE4MjE3fQ.2d0GZGpYADZ985xNUpxWh3i7pHHun1WxkXn4QhX4g9A"; // Replace with your actual API key
         String objectPath = "photos/" + imageFile.getName();
 
         RequestBody requestBody = RequestBody.create(imageFile, MediaType.parse("image/jpeg"));
@@ -204,7 +209,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
 
                 if (response.isSuccessful()) {
                     isImageUploaded = true;
-                    uploadedImageName = imageFile.getName(); // ✅ Save uploaded file name
+                    uploadedImageName = imageFile.getName(); // Save uploaded file name
                     runOnUiThread(() -> {
                         Toast.makeText(storybegin.this, "Image téléversée avec succès", Toast.LENGTH_SHORT).show();
                         btnBeginStory.setEnabled(true);
@@ -228,10 +233,12 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == IMAGE_CAPTURE_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                // If permissions granted, open the camera
                 openImagePicker();
             } else {
-                Toast.makeText(this, "Permission refusée pour accéder à la caméra", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permissions refusées", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -248,7 +255,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
             intent = new Intent(this, DefaultStoryActivity.class);
         }
 
-        intent.putExtra("uploadedImageName", uploadedImageName); // ✅ Pass to next activity
+        intent.putExtra("uploadedImageName", uploadedImageName); // Pass to next activity
         startActivity(intent);
     }
 }
