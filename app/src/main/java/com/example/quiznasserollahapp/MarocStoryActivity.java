@@ -89,9 +89,11 @@ public class MarocStoryActivity extends AppCompatActivity {
         }
 
         // First step UI
-        tvStory.setText("She looks at you and says: \"What’s your name?\"");
+        tvStory.setText("Your car is broken in the middle of the road. As you try to figure out what to do, you see a girl approaching.\n\n" +
+                "She looks at you and says: \"What’s your name?\"");
         radioGroup.setVisibility(View.VISIBLE);
-        radioName.setText(userName);
+        String displayName = userName.contains("@") ? userName.split("@")[0] : userName;
+        radioName.setText(displayName);
         radioAnonymous.setText("Prefer not to say");
 
         btnNext.setOnClickListener(v -> {

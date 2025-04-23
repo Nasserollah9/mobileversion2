@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "quiznasserollahapp"
 include(":app")
+include(":openCVLibrary")

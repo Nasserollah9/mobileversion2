@@ -1,9 +1,14 @@
 package com.example.quiznasserollahapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Geocoder;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,8 +32,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.objdetect.Objdetect;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +70,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
     private GoogleMap mMap;
     private TextView tvLocation;
     private Button btnBeginStory, btnUploadImage;
+    private CascadeClassifier faceDetector;
 
     private String detectedCountry = "";
     private boolean isImageUploaded = false;
@@ -71,7 +91,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         btnUploadImage.setOnClickListener(v -> openImagePicker());
-
+        loadCascadeClassifier();
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -124,6 +144,14 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
                 });
     }
 
+    static {
+        if (!OpenCVLoader.initDebug()) {
+            Log.d("OpenCV", "OpenCV initialization failed");
+        } else {
+            Log.d("OpenCV", "OpenCV initialized");
+        }
+    }
+
     private void openImagePicker() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -154,6 +182,35 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
         }
     }
 
+    private void loadCascadeClassifier() {
+        try {
+            InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_default);
+            File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+            File mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_default.xml");
+
+            FileOutputStream os = new FileOutputStream(mCascadeFile);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            is.close();
+            os.close();
+
+            faceDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+            if (faceDetector.empty()) {
+                faceDetector = null;
+                Log.e("OpenCV", "Failed to load cascade classifier");
+            } else {
+                Log.i("OpenCV", "Cascade classifier loaded");
+            }
+            Toast.makeText(this, "Cascade chargé avec succès", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("OpenCV", "Error loading cascade", e);
+        }
+    }
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -165,17 +222,139 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
         return new File(storageDir, imageFileName);
     }
 
+    // Inside onActivityResult, update this part
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == IMAGE_CAPTURE_CODE && resultCode == RESULT_OK) {
             if (currentPhotoFile != null && currentPhotoFile.exists()) {
-                uploadImageToSupabase(currentPhotoFile);
+                Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoFile.getAbsolutePath());
+
+                // Correct orientation if needed
+                bitmap = correctOrientation(bitmap);
+
+                // Use the updated detectFace method (returns true if a face is detected)
+                boolean faceDetected = detectFace(bitmap);
+
+                if (faceDetected) {
+                    Toast.makeText(this, "Visage détecté avec succès.", Toast.LENGTH_SHORT).show();
+                    btnBeginStory.setEnabled(false); // Optional: wait for upload success to enable
+                    uploadImageToSupabase(currentPhotoFile);
+                } else {
+                    Toast.makeText(this, "Aucun visage détecté. Veuillez réessayer.", Toast.LENGTH_LONG).show();
+                    btnBeginStory.setEnabled(false); // Just in case
+                    if (currentPhotoFile.exists()) {
+                        currentPhotoFile.delete(); // Clean up bad images
+                    }
+                }
             } else {
                 Log.e("Camera", "Image file does not exist or is null");
             }
         }
     }
+
+
+
+    private Bitmap correctOrientation(Bitmap bitmap) {
+        try {
+            // Get the image file path
+            String imagePath = currentPhotoFile.getAbsolutePath();
+
+            // Create an ExifInterface object to read EXIF metadata
+            ExifInterface exif = new ExifInterface(imagePath);
+
+            // Get the orientation value from EXIF metadata
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            // Rotate the bitmap based on the EXIF orientation value
+            Matrix matrix = new Matrix();
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.postRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.postRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.postRotate(270);
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                    matrix.postScale(-1, 1);
+                    break;
+                case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                    matrix.postScale(1, -1);
+                    break;
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    break;
+            }
+
+            // Apply the rotation matrix to the bitmap
+            Bitmap correctedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            return correctedBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return bitmap; // Return the original bitmap if an error occurs
+    }
+    private Bitmap resizeBitmap(Bitmap bitmap, int maxSize) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float ratio = (float) width / height;
+        if (width > height) {
+            width = maxSize;
+            height = (int) (width / ratio);
+        } else {
+            height = maxSize;
+            width = (int) (height * ratio);
+        }
+        return Bitmap.createScaledBitmap(bitmap, width, height, true);
+    }
+
+    private boolean detectFace(Bitmap bitmap) {
+        if (faceDetector == null) {
+            Log.e("OpenCV", "FaceDetector not loaded");
+            return false;
+        }
+
+        // Convert Bitmap to Mat
+        Mat rgba = new Mat();
+        Utils.bitmapToMat(bitmap, rgba);
+
+        // Convert to grayscale
+        Mat gray = new Mat();
+        Imgproc.cvtColor(rgba, gray, Imgproc.COLOR_RGBA2GRAY);
+
+        // Enhance contrast
+        Imgproc.equalizeHist(gray, gray);
+
+        // Reduce noise
+        Imgproc.GaussianBlur(gray, gray, new Size(3, 3), 0);
+
+        // Detect faces
+        MatOfRect faces = new MatOfRect();
+        faceDetector.detectMultiScale(
+                gray,
+                faces,
+                1.1, // Conservative scaling
+                5,   // Require more neighbors to validate a face
+                Objdetect.CASCADE_SCALE_IMAGE,
+                new Size(100, 100), // Only detect reasonably sized faces
+                new Size()          // No max size
+        );
+
+        // Optional: draw rectangles around detected faces
+        for (Rect face : faces.toArray()) {
+            Imgproc.rectangle(rgba, face.tl(), face.br(), new Scalar(0, 255, 0, 255), 2);
+        }
+
+        // ✅ Return true only if at least one real face is found
+        return faces.toArray().length > 0;
+    }
+
+
 
     private void uploadImageToSupabase(File imageFile) {
         OkHttpClient client = new OkHttpClient();
@@ -255,7 +434,7 @@ public class storybegin extends AppCompatActivity implements OnMapReadyCallback 
             intent = new Intent(this, DefaultStoryActivity.class);
         }
 
-        intent.putExtra("uploadedImageName", uploadedImageName); // Pass to next activity
+        intent.putExtra("uploadedImageName", uploadedImageName); // Optional if needed
         startActivity(intent);
     }
 }

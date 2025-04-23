@@ -40,7 +40,10 @@ public class VillageActivity extends AppCompatActivity {
                 "We will play a game like a quiz. Let me explain it to you first.\n\n" +
                 "You have a blood score of 500. We will give you 7 questions. Each question has 3 options, 2 correct and 1 false.\n\n" +
                 "If you choose the false one, your blood points will decrease by 50. In the end, if you have more than 300 blood points, you will still be alive!\n\n" +
+                "Also, we are secretly taking a picture of you during each question to make sure it's really you answering — no cheating allowed!\n\n" +
+                "And we are still watching...\n\n" +
                 "Are you ready?");
+
 
         // Set radio button texts
         RadioButton radioAccept = findViewById(R.id.radioAccept);

